@@ -45,7 +45,7 @@ class Project:
 
         from_step, to_step = step
         w, h = self.size
-        image = Image.new('RGB', self.size)
+        image = Image.new('RGBA', self.size)
         draw = ImageDraw.Draw(image)
         dpad = self.data_padding
 
@@ -58,6 +58,13 @@ class Project:
         space_between = (len(self.items) - 1) * self.space_between
         rows_height = container_height - space_between
         row_height = rows_height / len(self.items)
+
+        # Calculate the max width of an icon
+        max_icon_width = 0
+        for index, item in enumerate(self.items):
+            icon_width = item.image_width_for_height(row_height)
+            if icon_width > max_icon_width:
+                max_icon_width = icon_width
 
         label_width, label_height = draw.textsize(
             self.longest_item.label,
@@ -87,7 +94,7 @@ class Project:
             max_value = max_to + max_resolution * (1.0 - time)
 
         max_width = w - dpad.right - dpad.left 
-        max_width -= right_width + 64
+        max_width -= right_width + 64 + max_icon_width
         scale = max_width / float(max_value)
 
         for index, item in enumerate(start):
@@ -128,12 +135,16 @@ class Project:
                 fill=item.color
             )
 
+            _, icon_h = item.image.size
+            icon_width = item.image_width_for_height(row_height)
+            icon_x = x2 + 32
+
             value_text = "{}".format(int(value))
             value_width, value_height = draw.textsize(
                 value_text,
                 font=self.font
             )
-            value_x = x2 + 32
+            value_x = icon_x + icon_width + 32
             value_cy = (row_height / float(2)) \
                      - (value_height / float(2)) \
                      + y
@@ -143,6 +154,12 @@ class Project:
                 value_text,
                 fill=(0, 0, 0, 255),
                 font=self.font
+            )
+
+            icon_image = item.image.resize((icon_width, int(row_height)))
+
+            image.alpha_composite(icon_image,
+                dest=(int(icon_x), int(y)),
             )
 
             lw, lh = draw.textsize(item.label, font=self.font)
@@ -166,11 +183,18 @@ class AnimationsParameters:
 
 
 class Item(object):
-    __slots__ = ['id', 'values', 'label', 'color']
+    __slots__ = ['id', 'values', 'label', 'color', 'image']
 
     def __init__(self, **kwargs):
         for k in self.__slots__:
             setattr(self, k, kwargs.get(k, None))
+
+    def image_width_for_height(self, height):
+        if isinstance(self.image, Image.Image):
+            w, h = self.image.size
+            return int(height * (w / h))
+        else:
+            raise TypeError('Not image provided')
 
 
 class Rect(object):
