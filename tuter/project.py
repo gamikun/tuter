@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from operator import attrgetter, itemgetter
+import math
 
 class Project:
     def __init__(self, animation=None, size=(1920, 1080),
@@ -21,6 +22,7 @@ class Project:
         self.icons_size = icons_size
 
         self.font = ImageFont.truetype('din.ttf', 40)
+        self._alt_font = None
 
         self.item_label_length = 0
         self.longest_item = ''
@@ -35,23 +37,43 @@ class Project:
             self.item_label_length = len(item.label)
             self.longest_item = item
 
-        # Find highest value
+        """
         for key, value in item.values.items():
             if value > self.highest_value:
                 self.highest_value = value
+        """
 
-    def generate_image(self, step=None, time=0):
+        # Find highest value
+        for value in item.values:
+            if value > self.highest_value:
+                self.highest_value = value
+
+
+    def generate_image(self, step=None, time=0, render_scale=1):
         assert isinstance(step, tuple)
+
+        rsc = render_scale
+
+        if rsc == 1:
+            font = self.font
+        else:
+            new_font_size = int(round(self.font.size * rsc))
+            if self._alt_font is None or self._alt_font.size != new_font_size:
+                self._alt_font = self.font.font_variant(
+                    size=new_font_size
+                )
+            font = self._alt_font
 
         from_step, to_step = step
         w, h = self.size
-        image = Image.new('RGBA', self.size)
+        scaled_size = (int(round(w * rsc)), int(round(h * rsc)))
+        image = Image.new('RGBA', scaled_size)
         draw = ImageDraw.Draw(image)
         dpad = self.data_padding
 
         right_width, right_height = draw.textsize(
             str(self.highest_value),
-            font=self.font
+            font=font
         )
 
         container_height = h - dpad.bottom - dpad.top
@@ -72,7 +94,7 @@ class Project:
         )
         label_width += 32
 
-        draw.rectangle([(0, 0), (w, h)], fill=self.background_color)
+        draw.rectangle([(0, 0), (w * rsc, h * rsc)], fill=self.background_color)
 
         start = sorted([x for x in self.items],
             key=lambda k: k.values[from_step],
@@ -131,7 +153,8 @@ class Project:
             x2 = x + scale * value - label_width
             y2 = height + y
 
-            draw.rectangle([(x, y), (x2, y2)],
+            draw.rectangle(
+                [(x * rsc, y * rsc), (x2 * rsc, y2 * rsc)],
                 fill=item.color
             )
 
@@ -139,7 +162,7 @@ class Project:
             icon_width = item.image_width_for_height(row_height)
             icon_x = x2 + 32
 
-            value_text = "{}".format(int(value))
+            value_text = "{}".format(int(round(value)))
             value_width, value_height = draw.textsize(
                 value_text,
                 font=self.font
@@ -150,26 +173,28 @@ class Project:
                      + y
 
             draw.text(
-                (value_x, value_cy),
+                (value_x * rsc, value_cy * rsc),
                 value_text,
                 fill=(0, 0, 0, 255),
-                font=self.font
+                font=font
             )
 
-            icon_image = item.image.resize((icon_width, int(row_height)))
+            icon_image = item.image.resize(
+                (int(round(icon_width * rsc)), int(round(row_height * rsc)))
+            )
 
             image.alpha_composite(icon_image,
-                dest=(int(icon_x), int(y)),
+                dest=(int(round(icon_x * rsc)), int(round(y * rsc))),
             )
 
             lw, lh = draw.textsize(item.label, font=self.font)
             lx = dpad.left + label_width - lw - 32
 
             draw.text(
-                (lx, value_cy),
+                (lx * rsc, value_cy * rsc),
                 item.label,
                 fill=(0, 0, 0, 255),
-                font=self.font
+                font=font
             )
 
         return image

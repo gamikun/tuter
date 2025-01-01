@@ -1,6 +1,5 @@
 from tuter.project import Project, Item
 from io import BytesIO
-from openpyxl import Workbook
 from PIL import Image
 import subprocess
 
@@ -10,49 +9,49 @@ project = Project(
 	size=(1920, 1080),	
 )
 project.add_item(
-	values={2012: 34, 2013: 34, 2014: 35, 2015: 35, 2016: 30, 2017: 29, 2018: 28, 2019: 900},
+	values=[34, 34, 35, 35, 30, 29, 28, 900],
 	label='Mexico',
 	color=(0, 255, 0, 255),
 	image=Image.open('mx.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 73, 2013: 73, 2014: 74, 2015: 76, 2016: 74, 2017: 75, 2018: 71, 2019: 5},
+	values=[73, 73, 74, 76, 74, 75, 71, 5],
 	label='USA',
 	color=(0, 0, 255, 255),
 	image=Image.open('us.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 84, 2013: 81, 2014: 81, 2015: 83, 2016: 82, 2017: 82, 2018: 81, 2019: 2500},
+	values=[84, 81, 81, 83, 82, 82, 81, 2500],
 	label='Canada',
 	color=(255, 0, 0, 255),
 	image=Image.open('ca.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 39, 2013: 40, 2014: 36, 2015: 37, 2016: 40, 2017: 41, 2018: 39, 2019: 4000},
+	values=[39, 40, 36, 37, 40, 41, 39, 4000],
 	label='China',
 	color=(0, 0, 0, 255),
 	image=Image.open('cn.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 79, 2013: 78, 2014: 79, 2015: 81, 2016: 81, 2017: 81, 2018: 80, 2019: 20},
+	values=[79, 78, 79, 81, 81, 81, 80, 20],
 	label='Alemania',
 	color=(255, 128, 0, 255),
 	image=Image.open('de.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 19, 2013: 20, 2014: 19, 2015: 17, 2016: 17, 2017: 18, 2018: 18, 2019: 1500},
+	values=[19, 20, 19, 17, 17, 18, 18, 1500],
 	label='Venezuela',
 	color=(0, 0, 0, 255),
 	image=Image.open('ve.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 35, 2013: 34, 2014: 34, 2015: 32, 2016: 36, 2017: 39, 2018: 40, 2019: 500},
+	values=[35, 34, 34, 32, 36, 39, 40, 500],
 	label='Argentina',
 	color=(0, 128, 255, 255),
 	image=Image.open('ar.png').convert('RGBA'),
 )
 project.add_item(
-	values={2012: 37, 2013: 35, 2014: 38, 2015: 38, 2016: 35, 2017: 37, 2018: 36, 2019: 750},
+	values=[37, 35, 38, 38, 35, 37, 36, 750],
 	label='Tailandia',
 	color=(128, 0, 0, 255),
 	image=Image.open('th.png').convert('RGBA'),
